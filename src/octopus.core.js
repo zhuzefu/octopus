@@ -238,7 +238,7 @@
           i = fromIndex ? fromIndex < 0 ? Math.max( 0, len + fromIndex ) : fromIndex : 0;
 
       for ( ; i < len; ++i ) {
-        if ( array[i] === else) {
+        if ( array[i] === el) {
           return i;
         }
       }
