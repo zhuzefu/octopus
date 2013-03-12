@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="gb2312" />
+<title>Examples</title>
+<style type="text/css">
+body{font:300 13px helvetica neue}
+button{padding:7px;width:50px;cursor:pointer}h1,h2{font-weight:300;margin:0;padding:0}h1{font-size:36px}
+.stage{padding:50px;border:1px solid#bbb;margin:15px auto;position:relative;overflow:hidden;width:500px}
+.box{top:0;left:0;position:relative;width:30px;height:30px;border-radius:4px;background:#ccc;margin:5px 0;border:1px solid#999;-moz-border-radius:4px;-webkit-border-radius:4px;margin-top:30px}
+button{margin-top:50px}
+</style>
+</head>
+<body>
+<script src="../build/octopus-min.js"> </script>
+<h1>Examples</h1>
+<div class="stage">
+    <div id="ex1" class="box"></div>
+    <div id="ex2" class="box"></div>
+    <div id="ex3-scale" class="box">scale</div>
+    <div id="ex3-rotate" class="box">rotate</div>
+    <div id="ex3-skew" class="box">skew</div>
+    <div id="ex3-translate" class="box">translate</div>
+    <button id="go-ex1">Go</button>
+</div>
+
+<script>
+var easings = {
+    easeOutBounce: function(pos) {
+        if ((pos) < (1/2.75)) {
+            return (7.5625*pos*pos);
+        } else if (pos < (2/2.75)) {
+            return (7.5625*(pos-=(1.5/2.75))*pos + .75);
+        } else if (pos < (2.5/2.75)) {
+            return (7.5625*(pos-=(2.25/2.75))*pos + .9375);
+        } else {
+            return (7.5625*(pos-=(2.625/2.75))*pos + .984375);
+        }
+    },
+    easeInBack: function(pos){
+        var s = 1.70158;
+        return (pos)*pos*((s+1)*pos - s);
+    } 
+};
+
+$('#go-ex1').on('click',function (){
+    $('#go-ex1').setCSS('disabled',true); //??
+    $('#ex1').setCSS('left',0);
+    $('#ex1').setCSS('width','30px');
+    $('#ex1').animate({
+        backgroundColor: '#000',
+        left: 400,
+        width: '+=20',
+        complete: function () {
+             $('#go-ex1').disabled = false
+        },
+        duration: 600,
+        easing: easings.easeInBack
+    });
+});
+
+
+$('#go-ex1').on('click',function (){
+
+    $('#ex2').animate({
+        backgroundColor: '#00f',
+        duration: 2000,
+        complete: function () {
+      }
+    });
+});
+
+function reset() {
+    $('#ex3-scale')[0].style[$.detect('transform')] = 'scale(1)';
+    $('#ex3-rotate')[0].style[$.detect('transform')] = 'rotate(0deg)';
+    $('#ex3-skew')[0].style[$.detect('transform')] = 'skew(0deg, 0deg)';
+    $('#ex3-translate')[0].style[$.detect('transform')] = 'translate(0px,0px)';
+}
+
+$('#go-ex1').on('click',function (){
+     if (!$.detect('transform')) {
+       return;
+     }
+     reset();
+     $('#ex3-scale').animate({
+        transform: 'scale(+=1)'
+     });
+     $('#ex3-rotate').animate({
+        transform: 'rotate(+=70deg)'
+     });
+     $('#ex3-skew').animate({
+        transform:'skew(10deg,+=10deg)'
+     });
+     $('#ex3-translate').animate({
+        transform:'translate(+=50px,+=25px)'
+     });
+});
+</script>
+</body>
+</html>
+
+
+
+
