@@ -14,6 +14,7 @@
     _octopus = window.octopus,
 
     // 选择器用
+
     rcomma = /\s*,\s*/,
     rid = /^#([\w\-]+)$/,
     rtagclass = /^(?:([\w]+)|([\w]+)?\.([\w\-]+))$/,
@@ -30,12 +31,12 @@
     ralpha = /alpha\([^)]*\)/i,
 
     // core
-    ArrayProto = Array.prototype,
+    arrayProto = Array.prototype,
     objectProto = Object.prototype,
-    pForEach = ArrayProto.forEach,
-    pSlice = ArrayProto.slice,
-    pPush = ArrayProto.push,
-    pIndexOf = ArrayProto.indexOf,
+    pForEach = arrayProto.forEach,
+    pSlice = arrayProto.slice,
+    pPush = arrayProto.push,
+    pIndexOf = arrayProto.indexOf,
     pToString = objectProto.toString,
     pHasOwn = objectProto.hasOwnProperty,
     pBind = Function.prototype.bind,
@@ -78,7 +79,7 @@
 
     @property {String} VERSION
   **/
-  octopus.VERSION = '1.0.0';
+  octopus.VERSION = '1.0.1';
 
   /**
     是否开启除臭，该属性上线打包时应该自动替换为false
@@ -128,6 +129,8 @@
     return detectCache[name];
   };
 
+
+
   /**
     将类数组对象(array-like，像Arguments， NodeList)转换成真正数组
 
@@ -154,6 +157,8 @@
     @param {Object} 上下文环境
     @return {Mixed} Array|Arguments|NodeList
   **/
+
+
   var each = octopus.each = octopus.forEach = function ( obj, iterator, context ) {
     var key,
         len;

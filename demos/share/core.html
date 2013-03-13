@@ -1,0 +1,178 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="gb2312" />
+<title></title>
+<meta name="description" content=" ">
+<meta name="keywords" content=" ">
+</head>
+<body>
+<script src="js/jquery.1.7.2.js"> </script>
+<style>
+.blue{background-color:blue;}
+#wrap div{border:1px solid #ccc;width:100px;height:100px;float:left;margin:10px;}
+</style>
+<div id="wrap"> 
+
+    <div class="test">test1 </div>
+    <div class="test">test2</div>
+    <div id="test">test3</div>
+    <button id="testclass">为test1，test2添加样式类</button>
+    <button id="testid">掩藏test3</button>
+
+</div>
+<script> 
+
+/**
+ * 核心依赖文件
+ */
+
+;(function (window) {
+
+    // noConflict用，如果命名有冲突，可以让渡$，乃至于octopus的使用权，具体查看octopus.noConflict
+    var _$ = window.$,
+    _octopus = window.octopus;
+
+  /**
+    核心包装函数，仿jq
+
+    @class octopus
+    @constructor
+    @global
+  **/
+
+  var octopus = function ( selector, context ) {
+    if ( !( this instanceof octopus ) ) { //构造实例的时候就不用new 操作符了
+      return new octopus( selector , context );
+    }
+
+    var collections = queryAll( selector, context );
+    //选择器选择的元素 console.log(collections);
+    this.length = collections.length;
+
+    //将简单选择器获取的结果集附加到新实例上
+    merge( this , collections );
+    //console.log(this);
+  };
+
+
+  /**
+    迭代一个数组或者类数组对象（核心函数）
+
+    @method each、forEach
+    @param {Functoin} 迭代函数
+    @param {Object} 上下文环境
+    @return {Mixed} Array|Arguments|NodeList
+  **/
+  var each = octopus.each = octopus.forEach = function ( obj, iterator, context ) {
+    var key,
+        len;
+
+    if (!obj) {
+      return;
+    }
+
+    if ( Array.prototype.forEach && obj.forEach === Array.prototype.forEach) { //如果浏览器元素支持
+      obj.forEach(iterator, context);
+    } else if (obj.length === +obj.length) { //类数组
+      for (key = 0, len = obj.length; key < len; key++) {
+        if (key in obj) {
+          iterator.call(context, obj[key], key, obj);
+        }
+      }
+    } else { //对象
+      for (key in obj) {
+          iterator.call(context, obj[key], key, obj);
+      }
+    }
+    return obj;
+  };
+
+  /**
+    将一个数组合并到一个对象或数组上，主要用于将queryAll获取的元素集合合并到octopus实例上
+
+    @method merge
+    @param {Mixed} 被合并对象
+    @param {Mixed} 合并对象
+    @return {Mixed} 数组或者类数组对象
+  **/
+  var merge = octopus.merge = function (one, two) { //实例this 选择器获取的元素集合
+      var i = 0, 
+          len = two.length;
+
+      for (; i < len; i++) {
+        one[i] = two[i];
+      }
+      return one;
+  };
+
+  //注册 octopus，短名称为$
+  window.$ = window.octopus = octopus;
+
+  //添加静态方法
+  octopus.noConflict = function (deep) {
+      window.$ = _$;
+     // deep && (window.octopus = _octopus);
+      return octopus;
+  };
+
+  /**
+    测试代码
+  **/
+  //测试用选择器
+    function queryAll( selector, context ){
+        if (selector.indexOf('#') === 0) {
+           return [document.getElementById(selector.substr(1))];
+        }
+        if (selector.indexOf('.') === 0) {
+           return (context || document).getElementsByClassName(selector.substr(1));
+        }
+    } 
+    //模jq，添加一个实例方法
+   octopus.prototype.addClass = function (cls){
+     each(this, function (el,index){ //数组元素 索引
+        el.className +=' ' + cls;
+     })
+   }
+   //模jq，添加一个实例方法
+   octopus.prototype.hide = function (cls){
+     each(this, function (el,index){ //数组元素 索引
+        el.style.display ='none';
+     })
+   }
+
+   //随便测试添加一个实例方法
+   octopus.prototype.red = function (cls){
+     each(this, function (el,index){ //数组元素 索引
+        el.style.color ='red';
+     })
+   }
+}(this));
+
+
+
+//让渡$
+
+
+//var _ = octopus.noConflict();
+//
+////如果octopus也被别人用了，让渡octopus,有点鸡肋
+////var O = octopus.noConflict(true);
+////
+//
+//
+//
+
+//测试
+$('#testclass')[0].onclick = function (){
+   $('.test').addClass('blue').red();
+}
+
+$('#testid')[0].onclick = function (){
+    $('#test').hide();
+}
+
+
+</script>
+</body>
+</html>

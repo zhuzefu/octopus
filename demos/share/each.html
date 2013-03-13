@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="gb2312" />
+<title></title>
+<meta name="description" content=" ">
+<meta name="keywords" content=" ">
+</head>
+<body>
+
+<div id="wrap"> 
+    <div id="test">test2</div>
+    <div id="test2">test3</div>
+    <button>点我</button>
+</div>
+
+<script> 
+document.getElementsByTagName('button')[0].onclick = function (){
+
+  var arr =  [document.getElementById('test'),document.getElementById('test2')];
+
+    arr.forEach(function (el,index){
+        //对每个元素进行遍历
+        console.log(el,index);
+        el.style.backgroundColor = 'red';
+    })
+
+}
+
+</script>
+</body>
+</html>

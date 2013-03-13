@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="gb2312" />
+<title></title>
+<meta name="description" content=" ">
+<meta name="keywords" content=" ">
+</head>
+<body>
+<script> 
+var a = function(){
+  alert(1);
+}
+
+//没有前面的';'的话 后面的 ()会被当做 函数执行操作符
+//有点鸡肋~
+;(function (window) {
+    
+}(this));
+
+
+</script>
+</body>
+</html>

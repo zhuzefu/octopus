@@ -1,0 +1,254 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="gb2312" />
+
+    <title>octopus.js(章鱼)简介</title>
+
+    <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+    <meta name="author" content="Hakim El Hattab">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="../reveal/css/reveal.min.css">
+    <link rel="stylesheet" href="../reveal/css/theme/default.css" id="theme">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="../reveal/lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write( '<link rel="stylesheet" href="../reveal/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="../reveal/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+
+        <section>
+          <h1>octopus.js(章鱼)</h1>
+        </section>
+
+        <section>
+          <h2>前面添加 ‘;’ 的原因</h2>
+          <p>
+            <a href="#" class="image navigate-down">
+                <img src="images/demo1.png"  alt="" />
+             </a>
+          </p>
+        
+        </section>
+
+
+        <section>
+          <h2>全局变量的问题</h2>
+          <ul>
+            <li>"全局变量是魔鬼"  —— Douglas Crockford(JSON之父，jslint作者)</li>
+            <li>全局变量存在于整个页面生命周期
+            <p>js没有模块和包的概念。全局变量会注册为window的属性，全局变量越多，你遍历一个属性(比如window.document,window.alert)性能会下降</p>
+</li>
+            <li>命名冲突 <p>比如甲定义了一个变量temp，后面乙又定义同名变量temp，这样出错原因难调试.
+而且项目越大,和第三方脚本、统计，广告越容易冲突，也越容易出错</p> </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>怎么办？</h2>
+          <ol>
+            <li>在js里函数是天然的作用域，js没有块作用域的概念</li>
+            <li>最简单的把代码放在一个立即调用的函数表达式（Immediately-Invoked Function Expression）里面
+             <p>
+               <a href="#" class="image navigate-down">
+                <img src="images/jq1.9.png"  alt="" />
+             </a> 
+              </p>
+               
+            </li>
+          </ol>
+        </section>
+
+       <section>
+ <p> 
+                <pre><code contenteditable style="font-size: 18px; margin-top: 20px;">
+(function (window){
+    //your code...
+
+    //如果真的需要注册全局变量，可以通过window注册
+    window.temp = temp;
+}(this)); //this在浏览器环境就是window
+                  </code></pre>
+              </p>
+        </section>
+        <section id="transitions">
+          <h2>octopus原理,模仿jq</h2>
+            <ul>
+            <li>1、选择器选择元素集合 queryAll => [el1,el2,...]</li>
+       <p> 
+                <pre><code contenteditable style="font-size: 18px; margin-top: 20px;">
+//测试选择器，octopus的选择器比这个稍微复杂点，jq的选择器sizzlejs很好很强大，而我们的够用就好
+function queryAll( selector, context ){
+    if (selector.indexOf('#') === 0) {
+       return [document.getElementById(selector.substr(1))];
+    }
+    if (selector.indexOf('.') === 0) {
+       return (context || document).getElementsByClassName(selector.substr(1));
+    }
+} 
+              </code></pre>
+              </p>
+            </ul>
+        </section>
+
+         <section id="transitions">
+            <ul>
+            <li>2、将简单选择器获取的结果集附加到新实例上</li>
+       <p> 
+                <pre><code contenteditable style="font-size: 18px; margin-top: 20px;">
+ var merge = octopus.merge = function (one, two) { //实例this 选择器获取的元素集合
+      var i = 0, 
+          len = two.length;
+
+      for (; i < len; i++) {
+        one[i] = two[i];
+      }
+      return one;
+  };              </code></pre>
+              </p>
+              <p>
+               <a href="#" class="image navigate-down">
+                <img src="images/demo2.png"  alt="" />
+             </a> 
+              </p>
+            </ul>
+        </section>
+
+      
+      <section id="transitions">
+            <ul>
+            <li>3、用each方法迭代元素集合，执行相应方法</li>
+       <p> 
+  <pre><code contenteditable style="font-size: 18px; margin-top: 20px;">var each = octopus.each = function ( obj, iterator, context ) {
+    var key,len;
+    if ( Array.prototype.forEach) { //如果浏览器元素支持
+      obj.forEach(iterator, context);
+    } else if (obj.length === +obj.length) { //类数组
+      for (key = 0, len = obj.length; key < len; key++) {
+        if (key in obj) {
+          iterator.call(context, obj[key], key, obj); //上下文 元素 索引
+        }
+      }
+    } else { //对象
+      for (key in obj) {
+          iterator.call(context, obj[key], key, obj);
+      }
+    }
+    return obj;
+  }; </code></pre>
+              </p>
+            
+            </ul>
+        </section>
+
+
+<section id="transitions">
+            <ul>
+            <li>4、添加实例方法，测试</li>
+       <p> 
+                <pre><code contenteditable style="font-size: 18px; margin-top: 20px;">
+  //添加实例方法
+  octopus.prototype.hide = function (){
+    each(this,function (el,index){
+        el.style.display = 'none'
+    })
+    return this; //实现链式操作
+  };
+
+  octopus.prototype.addClass = function (cls){
+    each(this,function (el,index){ //self指向当前迭代元素
+        el.className += ' ' +cls;
+    })
+    return this;
+  };
+  </code></pre>
+              </p>
+
+            </ul>
+        </section>
+
+
+<section id="transitions">
+            <ul>
+            <li>静态方法noConflict</li>
+       <p> 
+                <pre><code contenteditable style="font-size: 20px; margin-top: 20px;">
+ _$ = window.$,
+_octopus = window.octopus;
+
+//your code....
+
+//添加静态方法
+octopus.noConflict = function (deep) {
+  window.$ = _$;
+  deep && (window.octopus = _octopus);
+  return octopus;
+};
+  </code></pre>
+              </p>
+
+            </ul>
+        </section>
+
+
+
+        <section>
+          <h3>谢谢</h3>
+        </section>
+
+      </div>
+
+    </div>
+
+    <script src="../reveal/lib/js/head.min.js"></script>
+    <script src="../reveal/js/reveal.min.js"></script>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../reveal/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal/plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../reveal/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../reveal/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: '../reveal/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../reveal/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+          // { src: '../reveal/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } }
+          // { src: '../reveal/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
